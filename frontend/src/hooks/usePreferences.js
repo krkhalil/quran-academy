@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   theme: 'quran_theme',
   lastRead: 'quran_last_read',
   bookmarks: 'quran_bookmarks',
+  notes: 'quran_notes',
 };
 
 export function useTranslation() {
@@ -104,4 +105,29 @@ export function useBookmarks() {
     }
   }, [isBookmarked, addBookmark, removeBookmark]);
   return [bookmarks, { setBookmarks, addBookmark, removeBookmark, isBookmarked, toggleBookmark }];
+}
+
+export function useNotes() {
+  const [notes, setNotesState] = useState(() => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEYS.notes);
+      return s ? JSON.parse(s) : {};
+    } catch {
+      return {};
+    }
+  });
+  const setNote = useCallback((verseKey, text) => {
+    setNotesState((prev) => {
+      const next = { ...prev };
+      if (text?.trim()) {
+        next[verseKey] = text.trim();
+      } else {
+        delete next[verseKey];
+      }
+      localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+  const getNote = useCallback((verseKey) => notes[verseKey] || '', [notes]);
+  return [notes, { setNote, getNote }];
 }

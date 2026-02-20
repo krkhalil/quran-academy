@@ -34,7 +34,9 @@ export default function TafsirSection({ verseKey, tafsirId = '169' }) {
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500 italic">Tafsir not available for this verse.</p>
+            <p className="text-sm text-gray-500 italic">
+              Tafsir is not available for this verse. Ensure QF_CLIENT_ID and QF_CLIENT_SECRET are set in backend/.env.
+            </p>
           )}
         </div>
       )}

@@ -13,16 +13,18 @@ cp backend/.env.example backend/.env
 Then edit `backend/.env` with your Quran Foundation credentials:
 
 ```env
-# Pre-Production (Test) - limited data, all features
+# Pre-Production (Test) - limited data, all features (OAuth + Tafsir)
 QF_ENV=prelive
-QF_CLIENT_ID=37dfae75-cc2f-4dcf-8063-60ca1e8ba518
-QF_CLIENT_SECRET=<your_prelive_secret>
+QF_CLIENT_ID=your_prelive_client_id
+QF_CLIENT_SECRET=your_prelive_client_secret
 
 # OR Production (Live) - full content
 # QF_ENV=production
-# QF_CLIENT_ID=d5b6a976-46fb-4a5b-b66a-774cb038784e
-# QF_CLIENT_SECRET=<your_production_secret>
+# QF_CLIENT_ID=your_production_client_id
+# QF_CLIENT_SECRET=your_production_client_secret
 ```
+
+**Note:** Tafsir now uses the Quran Foundation Content API (client credentials). With valid `QF_CLIENT_ID` and `QF_CLIENT_SECRET`, tafsir will load from Quran Foundation. Without them, it falls back to api.quran.com (which often returns empty).
 
 **Never commit `.env` to git.** Add it to `.gitignore`.
 

@@ -29,6 +29,9 @@ export default function Header() {
               <Link to="/juz" className="hover:text-emerald-100 transition">
                 Juz
               </Link>
+              <Link to="/page/1" className="hover:text-emerald-100 transition">
+                Page
+              </Link>
               <Link to="/bookmarks" className="hover:text-emerald-100 transition">
                 Bookmarks
               </Link>

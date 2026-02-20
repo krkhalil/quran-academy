@@ -10,12 +10,14 @@ from .services.quran_client import (
     get_chapter,
     get_verses,
     get_verses_by_juz,
+    get_verses_by_page,
     get_translations,
     get_recitations,
     get_juzs,
     get_verse_by_key,
     get_tafsirs,
     get_tafsir_by_verse,
+    search_verses,
 )
 
 
@@ -51,6 +53,7 @@ def verses(request, chapter_id):
         tafsirs=tafsirs if tafsirs else None,
         page=int(request.GET.get("page", 1)),
         per_page=int(request.GET.get("per_page", 20)),
+        tajweed=request.GET.get("tajweed", "false").lower() == "true",
     )
     return Response(data)
 
@@ -95,6 +98,34 @@ def verse_by_key(request, verse_key):
     data = get_verse_by_key(
         verse_key,
         translations=request.GET.get("translations", "131"),
+    )
+    return Response(data)
+
+
+@api_view(["GET"])
+def verses_by_page(request, page_number):
+    """Get verses by Mushaf page (1-604)."""
+    data = get_verses_by_page(
+        page_number,
+        translations=request.GET.get("translations", "131"),
+        per_page=int(request.GET.get("per_page", 20)),
+        audio=int(request.GET.get("audio", 1)),
+        words=request.GET.get("words", "false").lower() == "true",
+    )
+    return Response(data)
+
+
+@api_view(["GET"])
+def search(request):
+    """Full-text search across the Quran."""
+    q = request.GET.get("q", "").strip()
+    if not q:
+        return Response({"search": {"query": "", "results": [], "total_results": 0}})
+    data = search_verses(
+        query=q,
+        page=int(request.GET.get("page", 1)),
+        size=int(request.GET.get("size", 20)),
+        language=request.GET.get("language", "en"),
     )
     return Response(data)
 

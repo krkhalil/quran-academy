@@ -1,24 +1,33 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getChapter, getVerses } from '../api/quran';
 import VerseView from '../components/VerseView';
 import TranslationSelector from '../components/TranslationSelector';
 import ReciterSelector from '../components/ReciterSelector';
-import { useTranslation, useRecitation, useLastRead, useBookmarks } from '../hooks/usePreferences';
+import { useTranslation, useRecitation, useLastRead, useBookmarks, useNotes } from '../hooks/usePreferences';
 
 export default function SurahPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const verseParam = searchParams.get('verse');
   const chapterId = parseInt(id, 10);
-  const [page, setPage] = useState(1);
+  const verseRefs = useRef({});
+  const verseParamNum = verseParam ? parseInt(verseParam, 10) : null;
+  const initialPage = verseParamNum ? Math.ceil(verseParamNum / perPage) : 1;
+  const [page, setPage] = useState(initialPage);
   const [wordByWord, setWordByWord] = useState(false);
   const [showTafsir, setShowTafsir] = useState(false);
+  const [showTajweed, setShowTajweed] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [multiTranslation, setMultiTranslation] = useState(false);
   const [playingVerseKey, setPlayingVerseKey] = useState(null);
 
   const [translationId] = useTranslation();
   const [recitationId] = useRecitation();
   const [, setLastRead] = useLastRead();
   const [bookmarks, { toggleBookmark, isBookmarked }] = useBookmarks();
+  const [notes, { setNote, getNote }] = useNotes();
 
   const perPage = 20;
 
@@ -29,10 +38,10 @@ export default function SurahPage() {
   });
 
   const { data: versesData, isLoading: versesLoading } = useQuery({
-    queryKey: ['verses', chapterId, translationId, recitationId, wordByWord, page],
+    queryKey: ['verses', chapterId, translationId, recitationId, wordByWord, showTajweed, multiTranslation, page],
     queryFn: () =>
       getVerses(chapterId, {
-        translations: translationId,
+        translations: multiTranslation ? `${translationId},20,85` : translationId,
         audio: parseInt(recitationId, 10),
         words: wordByWord,
         page,
@@ -56,6 +65,17 @@ export default function SurahPage() {
       });
     }
   }, [chapterId, chapter, verses, setLastRead]);
+
+  useEffect(() => {
+    if (verseParamNum && verses.length > 0) {
+      const verse = verses.find((v) => v.verse_number === verseParamNum);
+      if (verse && verseRefs.current[verse.verse_key]) {
+        setTimeout(() => {
+          verseRefs.current[verse.verse_key]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  }, [verseParamNum, verses]);
 
   const handleAudioEnded = useCallback(() => {
     const idx = verses.findIndex((v) => v.verse_key === playingVerseKey);
@@ -115,6 +135,33 @@ export default function SurahPage() {
           />
           <span className="text-sm text-gray-700 dark:text-gray-300">Tafsir</span>
         </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showTajweed}
+            onChange={(e) => setShowTajweed(e.target.checked)}
+            className="rounded border-emerald-300"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tajweed</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showNotes}
+            onChange={(e) => setShowNotes(e.target.checked)}
+            className="rounded border-emerald-300"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Notes</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={multiTranslation}
+            onChange={(e) => setMultiTranslation(e.target.checked)}
+            className="rounded border-emerald-300"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">3 Translations</span>
+        </label>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 p-8 mb-8 dark:bg-gray-800 dark:border-emerald-900/50">
@@ -142,17 +189,25 @@ export default function SurahPage() {
           </>
         )}
         {verses.map((verse) => (
-          <VerseView
+          <div
             key={verse.id}
-            verse={verse}
+            ref={(el) => (verseRefs.current[verse.verse_key] = el)}
+          >
+            <VerseView
+              verse={verse}
             isPlaying={verse.verse_key === playingVerseKey}
             onAudioEnded={handleAudioEnded}
             onPlay={() => setPlayingVerseKey(verse.verse_key)}
             showWords={wordByWord}
             showTafsir={showTafsir}
+showTajweed={showTajweed}
             onBookmark={toggleBookmark}
             isBookmarked={isBookmarked(verse.verse_key)}
-          />
+            note={showNotes ? getNote(verse.verse_key) : undefined}
+            onNoteChange={showNotes ? setNote : undefined}
+            multiTranslation={multiTranslation}
+            />
+          </div>
         ))}
 
         {totalPages > 1 && (

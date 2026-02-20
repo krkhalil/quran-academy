@@ -16,6 +16,8 @@ urlpatterns = [
     path("chapters/<int:chapter_id>/verses/", views.verses),
     path("juzs/", views.juzs),
     path("juzs/<int:juz_number>/verses/", views.verses_by_juz),
+    path("pages/<int:page_number>/verses/", views.verses_by_page),
+    path("search/", views.search),
     path("translations/", views.translations),
     path("recitations/", views.recitations),
     path("verses/by_key/<str:verse_key>/", views.verse_by_key),

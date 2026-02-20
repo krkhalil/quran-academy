@@ -1,12 +1,14 @@
 import { useRef, useState, useEffect } from 'react';
 import { AUDIO_BASE } from '../api/quran';
 
-export default function AudioPlayer({ verse, isActive, onEnded, onPlay }) {
+export default function AudioPlayer({ verse, isActive, onEnded, onPlay, repeat = false, playbackRate = 1 }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [repeatVerse, setRepeatVerse] = useState(repeat);
+  const [speed, setSpeed] = useState(playbackRate);
 
   const url = verse?.audio?.url ? `${AUDIO_BASE}${verse.audio.url}` : null;
 
@@ -52,8 +54,17 @@ export default function AudioPlayer({ verse, isActive, onEnded, onPlay }) {
   const handleEnded = () => {
     setPlaying(false);
     setCurrentTime(0);
-    onEnded?.();
+    if (repeatVerse) {
+      audioRef.current?.play();
+    } else {
+      onEnded?.();
+    }
   };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) audio.playbackRate = speed;
+  }, [speed, url]);
 
   const handleSeek = (e) => {
     const audio = audioRef.current;
@@ -76,8 +87,8 @@ export default function AudioPlayer({ verse, isActive, onEnded, onPlay }) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex flex-col gap-1 w-32 sm:w-40">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-1 w-40 sm:w-48">
+      <div className="flex items-center gap-2 flex-wrap">
         <audio ref={audioRef} src={url} onEnded={handleEnded} preload="metadata" />
         <button
           onClick={toggle}
@@ -111,6 +122,25 @@ export default function AudioPlayer({ verse, isActive, onEnded, onPlay }) {
         <span className="text-xs text-gray-500 w-10 flex-shrink-0">
           {formatTime(currentTime)}/{formatTime(duration)}
         </span>
+        <button
+          onClick={() => setRepeatVerse((r) => !r)}
+          className={`p-1 rounded ${repeatVerse ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-emerald-600'}`}
+          title={repeatVerse ? 'Repeat on' : 'Repeat verse'}
+        >
+          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+          </svg>
+        </button>
+        <select
+          value={speed}
+          onChange={(e) => setSpeed(parseFloat(e.target.value))}
+          className="text-xs rounded border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-1 py-0.5"
+          title="Playback speed"
+        >
+          {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((r) => (
+            <option key={r} value={r}>{r}x</option>
+          ))}
+        </select>
       </div>
       {error && <span className="text-xs text-red-500">Error</span>}
     </div>

@@ -33,13 +33,16 @@ export default function WordByWord({ words }) {
               key={word.id}
               className="group relative inline-flex cursor-pointer flex-col items-center rounded px-1 py-0.5 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
               onClick={() => playWord(word)}
-              title={word.translation?.text}
+              title={[word.translation?.text, word.char_type_name && word.char_type_name !== 'word' ? `Tajweed: ${word.char_type_name}` : null].filter(Boolean).join(' • ')}
             >
               <span className="font-arabic text-lg text-emerald-900 dark:text-emerald-100">
                 {word.text}
               </span>
-              <span className="absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+              <span className="absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block whitespace-nowrap max-w-xs truncate">
                 {word.transliteration?.text} — {word.translation?.text}
+                {word.char_type_name && word.char_type_name !== 'word' && (
+                  <span className="block text-emerald-300 mt-0.5">Tajweed: {word.char_type_name}</span>
+                )}
               </span>
             </span>
           ))}

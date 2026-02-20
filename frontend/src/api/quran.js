@@ -15,12 +15,24 @@ export const getChapter = (chapterId, language = 'en') =>
   api.get(`/chapters/${chapterId}/`, { params: { language } }).then((r) => r.data);
 
 export const getVerses = (chapterId, options = {}) => {
-  const { translations = '131', audio = 1, words = false, tafsirs, page = 1, per_page = 20 } = options;
+  const { translations = '131', audio = 1, words = false, tafsirs, page = 1, per_page = 20, tajweed = false } = options;
   return api
     .get(`/chapters/${chapterId}/verses/`, {
-      params: { translations, audio, words: words.toString(), tafsirs, page, per_page },
+      params: { translations, audio, words: words.toString(), tafsirs, page, per_page, tajweed: tajweed.toString() },
     })
     .then((r) => r.data);
+};
+
+export const getVersesByPage = (pageNumber, options = {}) => {
+  const { translations = '131', per_page = 20, audio = 1, words = false } = options;
+  return api
+    .get(`/pages/${pageNumber}/verses/`, { params: { translations, per_page, audio, words: words.toString() } })
+    .then((r) => r.data);
+};
+
+export const searchQuran = (query, options = {}) => {
+  const { page = 1, size = 20, language = 'en' } = options;
+  return api.get('/search/', { params: { q: query, page, size, language } }).then((r) => r.data);
 };
 
 export const getTranslations = (language = 'en') =>
