@@ -1,0 +1,17 @@
+{
+  "name": "UK Quran Academy",
+  "short_name": "UK Quran Academy",
+  "description": "Read the Holy Quran with translations and audio",
+  "theme_color": "#065f46",
+  "background_color": "#f8f9fa",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

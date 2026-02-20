@@ -36,7 +36,7 @@ export default function Header() {
                 Bookmarks
               </Link>
               <a
-                href={`${import.meta.env.VITE_API_BASE || 'http://localhost:8000/api'}/oauth/login/`}
+                href={`${import.meta.env.VITE_API_BASE || '/api'}/oauth/login/`}
                 className="hover:text-emerald-100 transition"
               >
                 Sign in with Quran.com

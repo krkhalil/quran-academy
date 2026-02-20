@@ -66,6 +66,7 @@ def verses_by_juz(request, juz_number):
         translations=request.GET.get("translations", "131"),
         page=int(request.GET.get("page", 1)),
         per_page=int(request.GET.get("per_page", 20)),
+        tajweed=request.GET.get("tajweed", "false").lower() == "true",
     )
     return Response(data)
 

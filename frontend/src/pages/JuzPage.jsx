@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getJuzs, getVersesByJuz } from '../api/quran';
 import VerseView from '../components/VerseView';
+import TajweedLegend from '../components/TajweedLegend';
 import TranslationSelector from '../components/TranslationSelector';
 import { useTranslation } from '../hooks/usePreferences';
 
@@ -17,6 +18,7 @@ export default function JuzPage() {
     }
   }, [juzFromUrl]);
   const [page, setPage] = useState(1);
+  const [showTajweed, setShowTajweed] = useState(false);
   const [translationId] = useTranslation();
   const perPage = 20;
 
@@ -27,12 +29,13 @@ export default function JuzPage() {
   });
 
   const { data: versesData, isLoading } = useQuery({
-    queryKey: ['versesByJuz', selectedJuz, translationId, page],
+    queryKey: ['versesByJuz', selectedJuz, translationId, page, showTajweed],
     queryFn: () =>
       getVersesByJuz(selectedJuz, {
         translations: translationId,
         page,
         per_page: perPage,
+        tajweed: showTajweed,
       }),
     staleTime: 30 * 60 * 1000,
   });
@@ -46,6 +49,15 @@ export default function JuzPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <TranslationSelector />
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showTajweed}
+            onChange={(e) => setShowTajweed(e.target.checked)}
+            className="rounded border-emerald-300"
+          />
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tajweed</span>
+        </label>
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Juz:</label>
         <select
           value={selectedJuz}
@@ -91,9 +103,14 @@ export default function JuzPage() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
             Juz {selectedJuz}
           </h2>
+          {showTajweed && (
+            <div className="mb-6">
+              <TajweedLegend />
+            </div>
+          )}
           {verses.map((verse) => (
             <div key={verse.id} className="border-b border-emerald-50 dark:border-emerald-900/30 last:border-0">
-              <VerseView verse={verse} />
+              <VerseView verse={verse} showTajweed={showTajweed} />
               <Link
                 to={`/surah/${verse.verse_key?.split(':')[0] || verse.chapter_id}`}
                 className="text-xs text-emerald-600 hover:underline inline-block mb-2"

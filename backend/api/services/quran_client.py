@@ -46,23 +46,46 @@ def get_verses(chapter_id, translations="131", audio=1, words=False, tafsirs=Non
         params=params,
     )
     r.raise_for_status()
-    return r.json()
+    data = r.json()
+
+    if tajweed:
+        try:
+            from .qf_api_client import get_verses_uthmani_tajweed
+
+            qf_data = get_verses_uthmani_tajweed(chapter_number=chapter_id)
+            if qf_data and qf_data.get("verses"):
+                qf_by_key = {v["verse_key"]: v.get("text_uthmani_tajweed") for v in qf_data["verses"]}
+                for v in data.get("verses", []):
+                    key = v.get("verse_key")
+                    if key and qf_by_key.get(key) and ("<tajweed" in str(qf_by_key[key]) or "<span" in str(qf_by_key[key])):
+                        v["text_uthmani_tajweed"] = qf_by_key[key]
+        except Exception:
+            pass
+
+    return data
 
 
-def get_verses_by_juz(juz_number, translations="131", page=1, per_page=20):
+def get_verses_by_juz(juz_number, translations="131", page=1, per_page=20, tajweed=False):
     """Fetch verses by Juz number."""
+    fields = "text_uthmani,translations"
+    if tajweed:
+        fields += ",text_uthmani_tajweed"
     params = {
         "translations": translations,
         "page": page,
         "per_page": per_page,
-        "fields": "text_uthmani,translations",
+        "fields": fields,
     }
     r = requests.get(
         f"{QURAN_API_BASE}/verses/by_juz/{juz_number}",
         params=params,
     )
     r.raise_for_status()
-    return r.json()
+    data = r.json()
+
+    # QF API does not support juz_number; uses api.quran.com tajweed for juz view
+
+    return data
 
 
 def get_translations(language="en"):
@@ -119,7 +142,22 @@ def get_verses_by_page(page_number, translations="131", per_page=20, audio=1, wo
         params=params,
     )
     r.raise_for_status()
-    return r.json()
+    data = r.json()
+
+    try:
+        from .qf_api_client import get_verses_uthmani_tajweed
+
+        qf_data = get_verses_uthmani_tajweed(page_number=page_number)
+        if qf_data and qf_data.get("verses"):
+            qf_by_key = {v["verse_key"]: v.get("text_uthmani_tajweed") for v in qf_data["verses"]}
+            for v in data.get("verses", []):
+                key = v.get("verse_key")
+                if key and qf_by_key.get(key) and ("<tajweed" in str(qf_by_key[key]) or "<span" in str(qf_by_key[key])):
+                    v["text_uthmani_tajweed"] = qf_by_key[key]
+    except Exception:
+        pass
+
+    return data
 
 
 def search_verses(query, page=1, size=20, language="en"):

@@ -1,6 +1,7 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getChapters, searchQuran } from '../api/quran';
+import { cleanTranslationText } from '../utils/translation';
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -57,7 +58,7 @@ export default function SearchPage() {
               <div className="space-y-2">
                 {searchResults.map((v) => {
                   const [chId, vNum] = (v.verse_key || '').split(':');
-                  const transText = v.translations?.[0]?.text || '';
+                  const transText = cleanTranslationText(v.translations?.[0]?.text || '');
                   return (
                     <Link
                       key={v.verse_id || v.verse_key}

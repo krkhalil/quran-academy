@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
+// Use relative /api when served from same origin (Django at 8000); else explicit URL for Vite dev
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -43,10 +44,10 @@ export const getRecitations = () => api.get('/recitations/').then((r) => r.data)
 export const getJuzs = () => api.get('/juzs/').then((r) => r.data);
 
 export const getVersesByJuz = (juzNumber, options = {}) => {
-  const { translations = '131', page = 1, per_page = 20 } = options;
+  const { translations = '131', page = 1, per_page = 20, tajweed = false } = options;
   return api
     .get(`/juzs/${juzNumber}/verses/`, {
-      params: { translations, page, per_page },
+      params: { translations, page, per_page, tajweed: tajweed.toString() },
     })
     .then((r) => r.data);
 };

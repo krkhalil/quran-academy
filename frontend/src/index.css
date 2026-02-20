@@ -18,7 +18,7 @@
   font-family: 'Amiri', 'Noto Naskh Arabic', 'Scheherazade New', serif;
 }
 
-/* Tajweed/Recitation mode - larger, clearer text for reading aloud */
+/* Tajweed/Recitation mode - larger, clearer text */
 .tajweed-text {
   color: #065f46;
   font-size: 1.5em;
@@ -27,6 +27,10 @@
 }
 .dark .tajweed-text {
   color: #a7f3d0;
+}
+/* Color-coded tajweed rules - hover for rule name */
+.tajweed-text .tajweed-rule {
+  cursor: help;
 }
 
 body {

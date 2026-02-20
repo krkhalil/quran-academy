@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getChapter, getVerses } from '../api/quran';
 import VerseView from '../components/VerseView';
+import TajweedLegend from '../components/TajweedLegend';
 import TranslationSelector from '../components/TranslationSelector';
 import ReciterSelector from '../components/ReciterSelector';
 import { useTranslation, useRecitation, useLastRead, useBookmarks, useNotes } from '../hooks/usePreferences';
@@ -44,6 +45,7 @@ export default function SurahPage() {
         translations: multiTranslation ? `${translationId},20,85` : translationId,
         audio: parseInt(recitationId, 10),
         words: wordByWord,
+        tajweed: showTajweed,
         page,
         per_page: perPage,
       }),
@@ -178,6 +180,11 @@ export default function SurahPage() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 dark:bg-gray-800 dark:border-emerald-900/50">
+        {showTajweed && (
+          <div className="mb-6">
+            <TajweedLegend />
+          </div>
+        )}
         {chapter.bismillah_pre !== false && (
           <>
             <p className="font-arabic text-2xl text-emerald-900 text-center mb-6 dark:text-emerald-100" dir="rtl">

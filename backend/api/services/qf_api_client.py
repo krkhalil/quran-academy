@@ -103,6 +103,20 @@ def _call_qf_api(endpoint, params=None):
         return None
 
 
+def get_verses_uthmani_tajweed(chapter_number=None, page_number=None, verse_key=None):
+    """Fetch verses with HTML tajweed from Quran Foundation. Returns dict with verses array or None."""
+    params = {}
+    if chapter_number:
+        params["chapter_number"] = chapter_number
+    elif page_number:
+        params["page_number"] = page_number
+    elif verse_key:
+        params["verse_key"] = verse_key
+    else:
+        return None
+    return _call_qf_api("/content/api/v4/quran/verses/uthmani_tajweed", params=params)
+
+
 def get_tafsir_by_verse(tafsir_id, verse_key=None, chapter_number=None):
     """Fetch tafsir from Quran Foundation API. Returns None if credentials missing or request fails."""
     params = {}

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getVersesByPage } from '../api/quran';
 import VerseView from '../components/VerseView';
+import TajweedLegend from '../components/TajweedLegend';
 import TranslationSelector from '../components/TranslationSelector';
 import ReciterSelector from '../components/ReciterSelector';
 import { useTranslation, useRecitation, useLastRead, useBookmarks, useNotes } from '../hooks/usePreferences';
@@ -142,6 +143,11 @@ export default function PageViewPage() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 dark:bg-gray-800 dark:border-emerald-900/50">
+        {showTajweed && (
+          <div className="mb-6">
+            <TajweedLegend />
+          </div>
+        )}
         {verses.map((verse) => (
           <VerseView
             key={verse.id}
